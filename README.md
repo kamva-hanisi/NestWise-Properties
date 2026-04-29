@@ -38,3 +38,20 @@ npm start
 - `GET /api/properties/:id`
 - `GET /api/about`
 - `POST /api/inquiries`
+
+## React Structure
+
+- `src/pages` contains route pages: Home, Properties, Property Details, Services, About, Contact, Favorites, and Not Found.
+- `src/components` contains reusable UI pieces such as Layout, SearchForm, PropertyCard, PropertyGrid, ContactForm, and SectionHeader.
+- `src/services/api.js` centralizes frontend calls to the Express API.
+- `src/hooks/useFavorites.js` stores saved properties in browser localStorage.
+
+## Frontend Routes
+
+- `/`
+- `/properties`
+- `/properties/:id`
+- `/services`
+- `/about`
+- `/contact`
+- `/favorites`
