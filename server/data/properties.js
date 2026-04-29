@@ -1,0 +1,113 @@
+export const properties = [
+  {
+    id: 1,
+    title: "Family Home in King William's Town",
+    location: "Eastern Cape, King William's Town",
+    city: "King William's Town",
+    province: "Eastern Cape",
+    type: "House",
+    status: "For Sale",
+    price: 500000,
+    beds: 4,
+    baths: 2,
+    size: "10x10m",
+    area: "20 000m2",
+    image: "/images/house1.png",
+    featured: true
+  },
+  {
+    id: 2,
+    title: "Sunny Suburban Residence",
+    location: "Eastern Cape, Bhisho",
+    city: "Bhisho",
+    province: "Eastern Cape",
+    type: "House",
+    status: "For Sale",
+    price: 650000,
+    beds: 4,
+    baths: 2,
+    size: "12x10m",
+    area: "18 500m2",
+    image: "/images/house 2.jpg",
+    featured: true
+  },
+  {
+    id: 3,
+    title: "Modern Starter Home",
+    location: "Eastern Cape, East London",
+    city: "East London",
+    province: "Eastern Cape",
+    type: "Townhouse",
+    status: "For Rent",
+    price: 8200,
+    beds: 3,
+    baths: 2,
+    size: "9x8m",
+    area: "720m2",
+    image: "/images/house 3.jpg",
+    featured: true
+  },
+  {
+    id: 4,
+    title: "Quiet Garden Property",
+    location: "Eastern Cape, Mthatha",
+    city: "Mthatha",
+    province: "Eastern Cape",
+    type: "House",
+    status: "For Sale",
+    price: 780000,
+    beds: 5,
+    baths: 3,
+    size: "15x11m",
+    area: "25 000m2",
+    image: "/images/house 4.jpg",
+    featured: false
+  },
+  {
+    id: 5,
+    title: "Compact City Apartment",
+    location: "Western Cape, Cape Town",
+    city: "Cape Town",
+    province: "Western Cape",
+    type: "Apartment",
+    status: "For Rent",
+    price: 12500,
+    beds: 2,
+    baths: 1,
+    size: "7x8m",
+    area: "68m2",
+    image: "/images/house 5.jpg",
+    featured: false
+  },
+  {
+    id: 6,
+    title: "Premium Estate Home",
+    location: "Gauteng, Sandton",
+    city: "Sandton",
+    province: "Gauteng",
+    type: "House",
+    status: "For Sale",
+    price: 1850000,
+    beds: 4,
+    baths: 3,
+    size: "16x14m",
+    area: "1 250m2",
+    image: "/images/house 6.jpg",
+    featured: true
+  }
+];
+
+export const agents = [
+  {
+    id: 1,
+    name: "Rollins Jali",
+    role: "CEO",
+    image: "/images/about/person.jpg"
+  },
+  {
+    id: 2,
+    name: "Jennifer Sibanyoni",
+    role: "Senior Agent",
+    image: "/images/about/khanyi.jpg"
+  }
+];
