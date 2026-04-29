@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
-import { createBooking } from "../services/api.js";
 
 function BookingForm({ property, action = "viewing" }) {
   const { isAuthenticated, user } = useAuth();
@@ -10,26 +9,17 @@ function BookingForm({ property, action = "viewing" }) {
     viewingDate: "",
     message: `I am interested in ${property.title}.`
   });
-  const [notice, setNotice] = useState("");
-  const [error, setError] = useState("");
 
   const handleChange = (event) => {
     const { name, value } = event.target;
     setForm((current) => ({ ...current, [name]: value }));
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    setNotice("");
-    setError("");
-
-    try {
-      const data = await createBooking({ ...form, propertyId: property.id });
-      setNotice(data.message);
-    } catch (apiError) {
-      setError(apiError.message);
-    }
-  };
+  const requestUrl = `/request/${property.id}?action=${encodeURIComponent(
+    form.action
+  )}&date=${encodeURIComponent(form.viewingDate)}&message=${encodeURIComponent(
+    form.message
+  )}`;
 
   if (!isAuthenticated) {
     return (
@@ -49,7 +39,7 @@ function BookingForm({ property, action = "viewing" }) {
   }
 
   return (
-    <form className="booking-form" onSubmit={handleSubmit}>
+    <form className="booking-form">
       <p className="signed-in-note">Booking as {user.name}</p>
       <label>
         <span>Request Type</span>
@@ -72,11 +62,9 @@ function BookingForm({ property, action = "viewing" }) {
         <span>Message</span>
         <textarea name="message" value={form.message} onChange={handleChange} />
       </label>
-      <button className="button button-primary" type="submit">
-        Send Request
-      </button>
-      {notice && <p className="alert alert-success">{notice}</p>}
-      {error && <p className="alert alert-error">{error}</p>}
+      <Link className="button button-primary" to={requestUrl}>
+        Continue to Personal Details
+      </Link>
     </form>
   );
 }

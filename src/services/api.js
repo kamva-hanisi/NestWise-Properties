@@ -101,3 +101,9 @@ export const updateBookingStatus = (id, status) =>
     headers: { "Content-Type": "application/json", ...authHeaders() },
     body: JSON.stringify({ status })
   });
+
+export const deleteAdminClient = (id) =>
+  request(`/admin/clients/${id}`, {
+    method: "DELETE",
+    headers: authHeaders()
+  });

@@ -67,6 +67,7 @@ Client routes:
 - `/rent`
 - `/properties`
 - `/properties/:id`
+- `/request/:id`
 - `/services`
 - `/about`
 - `/contact`
@@ -132,3 +133,7 @@ Go to:
 Login with the admin account configured in `.env` or `.env.example`.
 
 Admin can see clients, bookings, renters, buyers, inquiries, and update booking statuses.
+
+Clients now choose a request type and preferred date on a property, continue to a personal details form, then submit the full booking/rent/buy request. Client accounts show request status and last-seen information.
+
+Admin dashboard separates booking, renting, and buying requests, shows client details and last-seen time, and can delete a client account plus that client's requests when finished.

@@ -76,6 +76,8 @@ const publicUser = (user) => ({
   email: user.email,
   phone: user.phone,
   role: user.role || "client",
+  lastSeenAt: user.lastSeenAt || user.createdAt,
+  createdAt: user.createdAt,
   preferences: user.preferences || {
     emailUpdates: true,
     smsUpdates: false,
@@ -102,6 +104,15 @@ const requireAuth = (req, res, next) => {
   }
 
   req.user = user;
+  updateStore((data) => {
+    const storedUser = data.users.find((item) => item.id === user.id);
+
+    if (storedUser) {
+      storedUser.lastSeenAt = new Date().toISOString();
+    }
+
+    return data;
+  });
   return next();
 };
 
@@ -257,6 +268,26 @@ app.patch("/api/admin/bookings/:id", requireAdmin, (req, res) => {
   });
 });
 
+app.delete("/api/admin/clients/:id", requireAdmin, (req, res) => {
+  const clientId = Number(req.params.id);
+  const data = readStore();
+  const client = data.users.find((user) => user.id === clientId);
+
+  if (!client || client.role === "admin") {
+    return res.status(404).json({ message: "Client not found." });
+  }
+
+  updateStore((store) => ({
+    ...store,
+    users: store.users.filter((user) => user.id !== clientId),
+    bookings: store.bookings.filter((booking) => booking.userId !== clientId)
+  }));
+
+  return res.json({
+    message: "Client account and requests deleted."
+  });
+});
+
 app.get("/api/auth/me", requireAuth, (req, res) => {
   res.json({ user: publicUser(req.user) });
 });
@@ -362,7 +393,15 @@ app.get("/api/bookings", requireAuth, (req, res) => {
 });
 
 app.post("/api/bookings", requireAuth, (req, res) => {
-  const { propertyId, action, viewingDate, message } = req.body;
+  const {
+    propertyId,
+    action,
+    viewingDate,
+    message,
+    personalDetails = {},
+    financing = {},
+    emergencyContact = {}
+  } = req.body;
   const property = properties.find((item) => item.id === Number(propertyId));
 
   if (!property) {
@@ -380,6 +419,29 @@ app.post("/api/bookings", requireAuth, (req, res) => {
     action,
     viewingDate: viewingDate || "",
     message: message || "",
+    personalDetails: {
+      fullName: personalDetails.fullName || req.user.name,
+      email: normalize(personalDetails.email || req.user.email),
+      phone: personalDetails.phone || req.user.phone || "",
+      idNumber: personalDetails.idNumber || "",
+      occupation: personalDetails.occupation || "",
+      employer: personalDetails.employer || "",
+      monthlyIncome: personalDetails.monthlyIncome || "",
+      currentAddress: personalDetails.currentAddress || "",
+      moveInDate: personalDetails.moveInDate || "",
+      householdSize: personalDetails.householdSize || "",
+      notes: personalDetails.notes || ""
+    },
+    financing: {
+      method: financing.method || "",
+      depositReady: Boolean(financing.depositReady),
+      preApproved: Boolean(financing.preApproved)
+    },
+    emergencyContact: {
+      name: emergencyContact.name || "",
+      phone: emergencyContact.phone || "",
+      relationship: emergencyContact.relationship || ""
+    },
     status: "Pending agent review",
     createdAt: new Date().toISOString()
   };

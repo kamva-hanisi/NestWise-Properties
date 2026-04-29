@@ -13,6 +13,7 @@ import Buy from "./pages/Buy.jsx";
 import Properties from "./pages/Properties.jsx";
 import PropertyDetails from "./pages/PropertyDetails.jsx";
 import Rent from "./pages/Rent.jsx";
+import RequestDetails from "./pages/RequestDetails.jsx";
 import Settings from "./pages/Settings.jsx";
 import Services from "./pages/Services.jsx";
 
@@ -25,6 +26,7 @@ function App() {
         <Route index element={<Home />} />
         <Route path="properties" element={<Properties />} />
         <Route path="properties/:id" element={<PropertyDetails />} />
+        <Route path="request/:id" element={<RequestDetails />} />
         <Route path="buy" element={<Buy />} />
         <Route path="rent" element={<Rent />} />
         <Route path="services" element={<Services />} />

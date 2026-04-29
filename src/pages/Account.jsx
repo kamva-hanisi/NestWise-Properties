@@ -4,6 +4,27 @@ import SectionHeader from "../components/SectionHeader.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import { getBookings } from "../services/api.js";
 
+const timeAgo = (value) => {
+  if (!value) return "Never";
+
+  const diff = Date.now() - new Date(value).getTime();
+  const minutes = Math.max(1, Math.floor(diff / 60000));
+
+  if (minutes < 60) return `${minutes} min ago`;
+
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} hr ago`;
+
+  return `${Math.floor(hours / 24)} day ago`;
+};
+
+const statusClass = (status = "") =>
+  status.toLowerCase().includes("approved")
+    ? "approved"
+    : status.toLowerCase().includes("declined")
+      ? "declined"
+      : "pending";
+
 function Account() {
   const { isAuthenticated, user } = useAuth();
   const [bookings, setBookings] = useState([]);
@@ -34,6 +55,7 @@ function Account() {
           <h2>Client Details</h2>
           <p>{user.email}</p>
           {user.phone && <p>{user.phone}</p>}
+          <p>Last seen: {timeAgo(user.lastSeenAt)}</p>
           <div className="auth-actions">
             <Link className="button button-primary" to="/buy">
               Buy House
@@ -58,7 +80,12 @@ function Account() {
                 <article key={booking.id}>
                   <strong>{booking.property?.title || "Property"}</strong>
                   <span>{booking.action}</span>
-                  <p>{booking.status}</p>
+                  <p className={`request-status ${statusClass(booking.status)}`}>
+                    {booking.status}
+                  </p>
+                  <p>{booking.viewingDate ? `Preferred date: ${booking.viewingDate}` : "No date selected"}</p>
+                  {booking.personalDetails?.phone && <p>Phone: {booking.personalDetails.phone}</p>}
+                  <p>Submitted: {timeAgo(booking.createdAt)}</p>
                 </article>
               ))}
             </div>

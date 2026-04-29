@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import SectionHeader from "../components/SectionHeader.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
-import { getAdminDashboard, updateBookingStatus } from "../services/api.js";
+import { deleteAdminClient, getAdminDashboard, updateBookingStatus } from "../services/api.js";
 
 const statusOptions = [
   "Pending agent review",
@@ -11,6 +11,26 @@ const statusOptions = [
   "Completed",
   "Declined"
 ];
+
+const timeAgo = (value) => {
+  if (!value) return "Never";
+
+  const diff = Date.now() - new Date(value).getTime();
+  const minutes = Math.max(1, Math.floor(diff / 60000));
+
+  if (minutes < 60) return `${minutes} min ago`;
+
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} hr ago`;
+
+  return `${Math.floor(hours / 24)} day ago`;
+};
+
+const requestLabel = {
+  viewing: "Bookings",
+  rent: "Renting",
+  buy: "Buying"
+};
 
 function AdminDashboard() {
   const { isAuthenticated, user, login, logout } = useAuth();
@@ -57,6 +77,21 @@ function AdminDashboard() {
     }
   };
 
+  const handleDeleteClient = async (clientId, clientName) => {
+    const confirmed = window.confirm(
+      `Delete ${clientName}'s account and all of their requests?`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      await deleteAdminClient(clientId);
+      loadDashboard();
+    } catch (apiError) {
+      setError(apiError.message);
+    }
+  };
+
   const handleChange = (event) => {
     const { name, value } = event.target;
     setForm((current) => ({ ...current, [name]: value }));
@@ -76,6 +111,52 @@ function AdminDashboard() {
     } catch (apiError) {
       setAuthError(apiError.message);
     }
+  };
+
+  const renderRequests = (action) => {
+    const items = dashboard.bookings.filter((booking) => booking.action === action);
+
+    return (
+      <div className="detail-panel admin-request-panel">
+        <h2>{requestLabel[action]}</h2>
+        {!items.length ? (
+          <p className="status">No {requestLabel[action].toLowerCase()} requests yet.</p>
+        ) : (
+          <div className="admin-table admin-table-rich">
+            {items.map((booking) => (
+              <article key={booking.id}>
+                <div>
+                  <strong>{booking.property?.title || "Property"}</strong>
+                  <span>{booking.property?.location}</span>
+                  <span>Preferred: {booking.viewingDate || "No date selected"}</span>
+                </div>
+                <div>
+                  <strong>{booking.personalDetails?.fullName || booking.client?.name}</strong>
+                  <span>{booking.personalDetails?.email || booking.client?.email}</span>
+                  <span>{booking.personalDetails?.phone || booking.client?.phone}</span>
+                  <span>Last seen: {timeAgo(booking.client?.lastSeenAt)}</span>
+                </div>
+                <div>
+                  <span>Occupation: {booking.personalDetails?.occupation || "Not provided"}</span>
+                  <span>Income: {booking.personalDetails?.monthlyIncome || "Not provided"}</span>
+                  <span>Address: {booking.personalDetails?.currentAddress || "Not provided"}</span>
+                </div>
+                <select
+                  value={booking.status}
+                  onChange={(event) => handleStatusChange(booking.id, event.target.value)}
+                >
+                  {statusOptions.map((status) => (
+                    <option key={status} value={status}>
+                      {status}
+                    </option>
+                  ))}
+                </select>
+              </article>
+            ))}
+          </div>
+        )}
+      </div>
+    );
   };
 
   if (!isAuthenticated || !isAdmin) {
@@ -178,39 +259,13 @@ function AdminDashboard() {
           </div>
         </div>
 
-        <div className="admin-layout">
-          <div className="detail-panel">
-            <h2>Bookings</h2>
-            {!dashboard.bookings.length ? (
-              <p className="status">No booking requests yet.</p>
-            ) : (
-              <div className="admin-table">
-                {dashboard.bookings.map((booking) => (
-                  <article key={booking.id}>
-                    <div>
-                      <strong>{booking.property?.title || "Property"}</strong>
-                      <span>{booking.client?.name || "Client"}</span>
-                    </div>
-                    <div>
-                      <span>{booking.action}</span>
-                      <span>{booking.viewingDate || "No date selected"}</span>
-                    </div>
-                    <select
-                      value={booking.status}
-                      onChange={(event) => handleStatusChange(booking.id, event.target.value)}
-                    >
-                      {statusOptions.map((status) => (
-                        <option key={status} value={status}>
-                          {status}
-                        </option>
-                      ))}
-                    </select>
-                  </article>
-                ))}
-              </div>
-            )}
-          </div>
+        <div className="admin-request-stack">
+          {renderRequests("viewing")}
+          {renderRequests("rent")}
+          {renderRequests("buy")}
+        </div>
 
+        <div className="admin-layout">
           <div className="admin-side">
             <div className="detail-panel">
               <h2>Clients</h2>
@@ -222,6 +277,15 @@ function AdminDashboard() {
                     <article key={client.id}>
                       <strong>{client.name}</strong>
                       <span>{client.email}</span>
+                      <span>{client.phone || "No phone"}</span>
+                      <span>Last seen: {timeAgo(client.lastSeenAt)}</span>
+                      <button
+                        className="button button-danger"
+                        type="button"
+                        onClick={() => handleDeleteClient(client.id, client.name)}
+                      >
+                        Delete Client
+                      </button>
                     </article>
                   ))}
                 </div>
