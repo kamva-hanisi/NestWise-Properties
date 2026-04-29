@@ -72,12 +72,14 @@ Client routes:
 - `/contact`
 - `/favorites`
 - `/account`
+- `/settings`
 - `/signin`
 - `/signup`
 
 Admin side starts at:
 
 - `/admin`
+- `/admin/settings`
 
 ## Demo Data
 

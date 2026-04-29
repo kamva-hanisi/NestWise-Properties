@@ -58,6 +58,26 @@ export const getMe = () =>
     headers: authHeaders()
   });
 
+export const updateProfile = (payload) =>
+  request("/auth/profile", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify(payload)
+  });
+
+export const changePassword = (payload) =>
+  request("/auth/password", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify(payload)
+  });
+
+export const deleteAccount = () =>
+  request("/auth/account", {
+    method: "DELETE",
+    headers: authHeaders()
+  });
+
 export const createBooking = (payload) =>
   request("/bookings", {
     method: "POST",

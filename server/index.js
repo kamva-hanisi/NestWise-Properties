@@ -75,7 +75,13 @@ const publicUser = (user) => ({
   name: user.name,
   email: user.email,
   phone: user.phone,
-  role: user.role || "client"
+  role: user.role || "client",
+  preferences: user.preferences || {
+    emailUpdates: true,
+    smsUpdates: false,
+    preferredMarket: "buy",
+    preferredProvince: ""
+  }
 });
 
 const getUserFromRequest = (req) => {
@@ -253,6 +259,67 @@ app.patch("/api/admin/bookings/:id", requireAdmin, (req, res) => {
 
 app.get("/api/auth/me", requireAuth, (req, res) => {
   res.json({ user: publicUser(req.user) });
+});
+
+app.patch("/api/auth/profile", requireAuth, (req, res) => {
+  const { name, phone, preferences } = req.body;
+  const data = readStore();
+  const user = data.users.find((item) => item.id === req.user.id);
+
+  if (!user) {
+    return res.status(404).json({ message: "Account not found." });
+  }
+
+  if (name) user.name = name;
+  user.phone = phone || "";
+  user.preferences = {
+    ...(user.preferences || {}),
+    ...(preferences || {})
+  };
+
+  updateStore(() => data);
+
+  return res.json({
+    message: "Settings updated.",
+    user: publicUser(user)
+  });
+});
+
+app.patch("/api/auth/password", requireAuth, (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  const data = readStore();
+  const user = data.users.find((item) => item.id === req.user.id);
+
+  if (!user) {
+    return res.status(404).json({ message: "Account not found." });
+  }
+
+  if (!verifyPassword(currentPassword, user.passwordHash)) {
+    return res.status(401).json({ message: "Current password is incorrect." });
+  }
+
+  if (!newPassword || newPassword.length < 6) {
+    return res.status(400).json({ message: "New password must be at least 6 characters." });
+  }
+
+  user.passwordHash = hashPassword(newPassword);
+  updateStore(() => data);
+
+  return res.json({ message: "Password changed successfully." });
+});
+
+app.delete("/api/auth/account", requireAuth, (req, res) => {
+  if (req.user.role === "admin") {
+    return res.status(403).json({ message: "Admin accounts cannot be deleted here." });
+  }
+
+  updateStore((data) => ({
+    ...data,
+    users: data.users.filter((user) => user.id !== req.user.id),
+    bookings: data.bookings.filter((booking) => booking.userId !== req.user.id)
+  }));
+
+  return res.json({ message: "Your account and booking requests have been deleted." });
 });
 
 app.get("/api/properties", (req, res) => {

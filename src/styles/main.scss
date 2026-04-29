@@ -86,6 +86,15 @@ img {
   color: $ink;
 }
 
+.button-danger {
+  color: white;
+  background: #b42318;
+
+  &:hover {
+    background: #8f1b12;
+  }
+}
+
 .eyebrow {
   color: $gold;
   font-size: 0.78rem;
@@ -875,6 +884,51 @@ textarea {
   }
 }
 
+.settings-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.settings-side,
+.settings-form {
+  display: grid;
+  gap: 14px;
+}
+
+.settings-form h2:not(:first-child) {
+  margin-top: 16px;
+}
+
+.setting-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  input {
+    width: 18px;
+    min-height: 18px;
+  }
+
+  span {
+    color: $ink;
+    text-transform: none;
+    font-size: 1rem;
+  }
+}
+
+.danger-zone {
+  display: grid;
+  gap: 14px;
+  border-color: #efcaca;
+  background: #fff8f7;
+
+  p {
+    color: #8a1f1f;
+  }
+}
+
 .admin-page {
   .section-heading {
     margin-bottom: 24px;
@@ -1043,7 +1097,8 @@ footer {
   .detail-hero,
   .detail-layout,
   .account-grid,
-  .admin-layout {
+  .admin-layout,
+  .settings-grid {
     grid-template-columns: 1fr;
   }
 

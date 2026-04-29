@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import SectionHeader from "../components/SectionHeader.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import { getAdminDashboard, updateBookingStatus } from "../services/api.js";
@@ -129,6 +130,7 @@ function AdminDashboard() {
         <div className="container">
           <strong>NestWise Admin</strong>
           <div>
+            <Link to="/admin/settings">Settings</Link>
             <a href="/">Client Site</a>
             <button className="nav-button" type="button" onClick={logout}>
               Sign Out

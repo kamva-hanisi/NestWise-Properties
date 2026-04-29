@@ -41,6 +41,9 @@ function Account() {
             <Link className="button button-ghost" to="/rent">
               Rent House
             </Link>
+            <Link className="button button-secondary" to="/settings">
+              Settings
+            </Link>
           </div>
         </div>
 
