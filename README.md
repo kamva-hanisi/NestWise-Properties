@@ -28,7 +28,7 @@ npm run build
 npm start
 ```
 
-`npm run build` creates the production frontend in `dist`. `npm start` runs the Express server, which serves the built React app and the API.
+`npm run build` creates the frontend build in `dist`. `npm start` runs the Express server, which serves the built React app and the API.
 
 ## API Routes
 
@@ -43,16 +43,24 @@ npm start
 - `GET /api/auth/me`
 - `GET /api/bookings`
 - `POST /api/bookings`
+- `GET /api/admin/dashboard`
+- `PATCH /api/admin/bookings/:id`
 
 ## React Structure
 
-- `src/pages` contains route pages: Home, Buy, Rent, Properties, Property Details, Services, About, Contact, Favorites, Account, Sign In, Sign Up, and Not Found.
+- `src/pages` contains route pages: Home, Buy, Rent, Properties, Property Details, Services, About, Contact, Favorites, Account, Admin Dashboard, Sign In, Sign Up, and Not Found.
 - `src/components` contains reusable UI pieces such as Layout, SearchForm, PropertyCard, PropertyGrid, ContactForm, and SectionHeader.
 - `src/services/api.js` centralizes frontend calls to the Express API.
 - `src/hooks/useFavorites.js` stores saved properties in browser localStorage.
 - `src/context/AuthContext.jsx` stores the current client session in browser localStorage.
 
 ## Frontend Routes
+
+Client side starts at:
+
+- `/`
+
+Client routes:
 
 - `/`
 - `/buy`
@@ -67,6 +75,74 @@ npm start
 - `/signin`
 - `/signup`
 
-## Account Note
+Admin side starts at:
 
-Client accounts and bookings are currently stored in memory on the Express server. They work while the server is running, but they reset when the backend restarts. Add a database such as MongoDB, PostgreSQL, or MySQL before using this as a real production system.
+- `/admin`
+
+## Demo Data
+
+Client accounts, bookings, and public inquiries are stored in `server/data/db.json`. The file is ignored by git so demo data is not committed. Passwords are stored as salted hashes, and auth uses signed bearer tokens.
+
+For the demo, you can copy `.env.example` to `.env` and adjust:
+
+- `AUTH_SECRET`
+- `ADMIN_EMAIL`
+- `ADMIN_PASSWORD`
+- `DB_FILE`
+
+The JSON store is enough for a demo. A real deployed version would normally use MongoDB, PostgreSQL, or MySQL.
+
+## Demo Admin
+
+Use this account to open the demo admin dashboard:
+
+- Email: `admin@nestwise.co.za`
+- Password: `admin123`
+
+The admin dashboard can see clients, bookings, rent requests, buy requests, public inquiries, property totals, and can update booking statuses.
+
+
+Run the project:
+
+`npm run dev`
+
+Open:
+
+text->
+
+`http://localhost:5173`
+
+## Client Side
+
+Go to:
+text
+
+http://localhost:5173/signup
+Create a client account.
+
+Then use:
+
+text
+
+`http://localhost:5173/buy`
+`http://localhost:5173/rent`
+`http://localhost:5173/account`
+
+Client can browse houses, book viewing, request to buy, request to rent, and see their own requests.
+
+
+## Admin Side
+
+Go to:
+
+`http://localhost:5173/signin`
+
+Login with:
+Email: `admin@nestwise.co.za`
+Password: admin123
+
+Then open:
+
+`http://localhost:5173/admin`
+
+Admin can see clients, bookings, renters, buyers, inquiries, and update booking statuses.

@@ -778,6 +778,14 @@ textarea {
   }
 }
 
+.demo-admin {
+  padding: 10px 12px;
+  border-radius: 7px;
+  background: $soft;
+  color: $accent-dark !important;
+  font-weight: 700;
+}
+
 .auth-required {
   padding: 18px;
   border: 1px solid $line;
@@ -846,6 +854,144 @@ textarea {
   }
 }
 
+.admin-page {
+  .section-heading {
+    margin-bottom: 24px;
+  }
+}
+
+.admin-shell {
+  min-height: 100vh;
+  background: #eef2f0;
+}
+
+.admin-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  color: white;
+  background: #101917;
+  box-shadow: 0 8px 22px rgba(18, 32, 28, 0.14);
+
+  .container {
+    min-height: 74px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 18px;
+  }
+
+  strong {
+    font-size: 1.25rem;
+  }
+
+  div div {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  a {
+    color: rgba(255, 255, 255, 0.78);
+    font-weight: 700;
+  }
+}
+
+.admin-login-page {
+  min-height: calc(100vh - 74px);
+  display: grid;
+  place-items: center;
+  padding: 60px 0;
+}
+
+.admin-login-card {
+  border-color: rgba(47, 111, 94, 0.2);
+}
+
+.admin-stats {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 14px;
+  margin-bottom: 24px;
+
+  div {
+    padding: 18px;
+    border: 1px solid $line;
+    border-radius: 8px;
+    background: white;
+  }
+
+  strong,
+  span {
+    display: block;
+  }
+
+  strong {
+    color: $accent;
+    font-size: 2rem;
+  }
+
+  span {
+    color: $muted;
+    font-size: 0.9rem;
+  }
+}
+
+.admin-layout {
+  display: grid;
+  grid-template-columns: 1.35fr 0.65fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.admin-side {
+  display: grid;
+  gap: 24px;
+}
+
+.admin-table,
+.client-list {
+  display: grid;
+  gap: 12px;
+}
+
+.admin-table article {
+  display: grid;
+  grid-template-columns: 1.1fr 0.75fr 220px;
+  gap: 12px;
+  align-items: center;
+  padding: 14px;
+  border: 1px solid $line;
+  border-radius: 8px;
+  background: $soft;
+
+  strong,
+  span {
+    display: block;
+  }
+
+  span {
+    color: $muted;
+    text-transform: capitalize;
+  }
+}
+
+.client-list article {
+  padding: 14px;
+  border: 1px solid $line;
+  border-radius: 8px;
+  background: $soft;
+
+  strong,
+  span {
+    display: block;
+  }
+
+  span {
+    color: $muted;
+  }
+}
+
 .empty-page {
   text-align: center;
 
@@ -875,7 +1021,16 @@ footer {
   .contact-layout,
   .detail-hero,
   .detail-layout,
-  .account-grid {
+  .account-grid,
+  .admin-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-stats {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .admin-table article {
     grid-template-columns: 1fr;
   }
 
@@ -939,6 +1094,10 @@ footer {
   .detail-list,
   .card-actions {
     grid-template-columns: 1fr;
+  }
+
+  .admin-stats {
+    grid-template-columns: 1fr 1fr;
   }
 
   .section {

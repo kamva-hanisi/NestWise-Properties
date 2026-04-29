@@ -69,3 +69,15 @@ export const getBookings = () =>
   request("/bookings", {
     headers: authHeaders()
   });
+
+export const getAdminDashboard = () =>
+  request("/admin/dashboard", {
+    headers: authHeaders()
+  });
+
+export const updateBookingStatus = (id, status) =>
+  request(`/admin/bookings/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify({ status })
+  });

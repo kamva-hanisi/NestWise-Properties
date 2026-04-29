@@ -1,9 +1,11 @@
 import "dotenv/config";
+import crypto from "crypto";
 import express from "express";
 import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
 import { agents, properties } from "./data/properties.js";
+import { readStore, updateStore } from "./data/store.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -13,9 +15,9 @@ const __dirname = path.dirname(__filename);
 app.use(cors());
 app.use(express.json());
 
-const users = [];
-const sessions = new Map();
-const bookings = [];
+const AUTH_SECRET = process.env.AUTH_SECRET || "nestwise-dev-secret-change-me";
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@nestwise.co.za";
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
 
 const toMoney = (value) =>
   new Intl.NumberFormat("en-ZA", {
@@ -26,19 +28,64 @@ const toMoney = (value) =>
 
 const normalize = (value = "") => String(value).trim().toLowerCase();
 
+const hashPassword = (password, salt = crypto.randomBytes(16).toString("hex")) => {
+  const hash = crypto.pbkdf2Sync(password, salt, 120000, 64, "sha512").toString("hex");
+  return `${salt}:${hash}`;
+};
+
+const verifyPassword = (password, storedHash = "") => {
+  const [salt, originalHash] = storedHash.split(":");
+
+  if (!salt || !originalHash) return false;
+
+  const comparisonHash = hashPassword(password, salt).split(":")[1];
+  return crypto.timingSafeEqual(Buffer.from(originalHash), Buffer.from(comparisonHash));
+};
+
+const signToken = (user) => {
+  const payload = Buffer.from(
+    JSON.stringify({ userId: user.id, role: user.role, issuedAt: Date.now() })
+  ).toString("base64url");
+  const signature = crypto.createHmac("sha256", AUTH_SECRET).update(payload).digest("base64url");
+
+  return `${payload}.${signature}`;
+};
+
+const verifyToken = (token = "") => {
+  const [payload, signature] = token.split(".");
+
+  if (!payload || !signature) return null;
+
+  const expectedSignature = crypto
+    .createHmac("sha256", AUTH_SECRET)
+    .update(payload)
+    .digest("base64url");
+
+  if (signature !== expectedSignature) return null;
+
+  try {
+    return JSON.parse(Buffer.from(payload, "base64url").toString("utf8"));
+  } catch {
+    return null;
+  }
+};
+
 const publicUser = (user) => ({
   id: user.id,
   name: user.name,
   email: user.email,
-  phone: user.phone
+  phone: user.phone,
+  role: user.role || "client"
 });
 
 const getUserFromRequest = (req) => {
   const authHeader = req.headers.authorization || "";
   const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
-  const userId = sessions.get(token);
+  const session = verifyToken(token);
 
-  return users.find((user) => user.id === userId);
+  if (!session) return null;
+
+  return readStore().users.find((user) => user.id === session.userId);
 };
 
 const requireAuth = (req, res, next) => {
@@ -52,6 +99,43 @@ const requireAuth = (req, res, next) => {
   return next();
 };
 
+const ensureAdminUser = () => {
+  updateStore((data) => {
+    const adminExists = data.users.some((user) => normalize(user.email) === normalize(ADMIN_EMAIL));
+
+    if (!adminExists) {
+      data.users.push({
+        id: 1,
+        name: "NestWise Admin",
+        email: normalize(ADMIN_EMAIL),
+        phone: "",
+        passwordHash: hashPassword(ADMIN_PASSWORD),
+        role: "admin",
+        createdAt: new Date().toISOString()
+      });
+    }
+
+    return data;
+  });
+};
+
+ensureAdminUser();
+
+const requireAdmin = (req, res, next) => {
+  const user = getUserFromRequest(req);
+
+  if (!user) {
+    return res.status(401).json({ message: "Please sign in to continue." });
+  }
+
+  if (user.role !== "admin") {
+    return res.status(403).json({ message: "Admin access required." });
+  }
+
+  req.user = user;
+  return next();
+};
+
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", app: "NestWise Properties API" });
 });
@@ -59,6 +143,7 @@ app.get("/api/health", (_req, res) => {
 app.post("/api/auth/signup", (req, res) => {
   const { name, email, phone, password } = req.body;
   const cleanEmail = normalize(email);
+  const data = readStore();
 
   if (!name || !cleanEmail || !password) {
     return res.status(400).json({
@@ -72,7 +157,7 @@ app.post("/api/auth/signup", (req, res) => {
     });
   }
 
-  const exists = users.some((user) => normalize(user.email) === cleanEmail);
+  const exists = data.users.some((user) => normalize(user.email) === cleanEmail);
 
   if (exists) {
     return res.status(409).json({ message: "An account with this email already exists." });
@@ -83,13 +168,16 @@ app.post("/api/auth/signup", (req, res) => {
     name,
     email: cleanEmail,
     phone: phone || "",
-    password,
+    passwordHash: hashPassword(password),
+    role: "client",
     createdAt: new Date().toISOString()
   };
-  const token = `token-${user.id}-${Math.random().toString(16).slice(2)}`;
+  const token = signToken(user);
 
-  users.push(user);
-  sessions.set(token, user.id);
+  updateStore((store) => {
+    store.users.push(user);
+    return store;
+  });
 
   return res.status(201).json({
     message: "Account created successfully.",
@@ -100,19 +188,66 @@ app.post("/api/auth/signup", (req, res) => {
 
 app.post("/api/auth/signin", (req, res) => {
   const { email, password } = req.body;
-  const user = users.find((item) => normalize(item.email) === normalize(email));
+  const user = readStore().users.find((item) => normalize(item.email) === normalize(email));
 
-  if (!user || user.password !== password) {
+  if (!user || !verifyPassword(password, user.passwordHash)) {
     return res.status(401).json({ message: "Invalid email or password." });
   }
 
-  const token = `token-${user.id}-${Math.random().toString(16).slice(2)}`;
-  sessions.set(token, user.id);
+  const token = signToken(user);
 
   return res.json({
     message: "Signed in successfully.",
     token,
     user: publicUser(user)
+  });
+});
+
+app.get("/api/admin/dashboard", requireAdmin, (_req, res) => {
+  const data = readStore();
+  const clientUsers = data.users.filter((user) => user.role !== "admin");
+  const enrichedBookings = data.bookings.map((booking) => ({
+    ...booking,
+    client: publicUser(data.users.find((user) => user.id === booking.userId)),
+    property: properties.find((property) => property.id === booking.propertyId)
+  }));
+  const enrichedInquiries = data.inquiries.map((inquiry) => ({
+    ...inquiry,
+    property: properties.find((property) => property.id === Number(inquiry.propertyId))
+  }));
+
+  return res.json({
+    stats: {
+      clients: clientUsers.length,
+      bookings: data.bookings.length,
+      renters: data.bookings.filter((booking) => booking.action === "rent").length,
+      buyers: data.bookings.filter((booking) => booking.action === "buy").length,
+      pending: data.bookings.filter((booking) => booking.status === "Pending agent review").length,
+      properties: properties.length,
+      inquiries: data.inquiries.length
+    },
+    bookings: enrichedBookings,
+    clients: clientUsers.map(publicUser),
+    renters: enrichedBookings.filter((booking) => booking.action === "rent"),
+    buyers: enrichedBookings.filter((booking) => booking.action === "buy"),
+    inquiries: enrichedInquiries
+  });
+});
+
+app.patch("/api/admin/bookings/:id", requireAdmin, (req, res) => {
+  const data = readStore();
+  const booking = data.bookings.find((item) => item.id === Number(req.params.id));
+
+  if (!booking) {
+    return res.status(404).json({ message: "Booking not found." });
+  }
+
+  booking.status = req.body.status || booking.status;
+  updateStore(() => data);
+
+  return res.json({
+    message: "Booking status updated.",
+    booking
   });
 });
 
@@ -149,7 +284,7 @@ app.get("/api/properties", (req, res) => {
 });
 
 app.get("/api/bookings", requireAuth, (req, res) => {
-  const userBookings = bookings
+  const userBookings = readStore().bookings
     .filter((booking) => booking.userId === req.user.id)
     .map((booking) => ({
       ...booking,
@@ -182,7 +317,10 @@ app.post("/api/bookings", requireAuth, (req, res) => {
     createdAt: new Date().toISOString()
   };
 
-  bookings.push(booking);
+  updateStore((data) => {
+    data.bookings.push(booking);
+    return data;
+  });
 
   return res.status(201).json({
     message: `Your ${action} request has been sent to NestWise.`,
@@ -221,17 +359,25 @@ app.post("/api/inquiries", (req, res) => {
     });
   }
 
+  const inquiry = {
+    id: Date.now(),
+    name,
+    email: normalize(email),
+    phone: phone || "",
+    message,
+    propertyId: propertyId || null,
+    status: "New",
+    createdAt: new Date().toISOString()
+  };
+
+  updateStore((data) => {
+    data.inquiries.push(inquiry);
+    return data;
+  });
+
   return res.status(201).json({
     message: "Thank you. A NestWise agent will contact you soon.",
-    inquiry: {
-      id: Date.now(),
-      name,
-      email,
-      phone: phone || "",
-      message,
-      propertyId: propertyId || null,
-      createdAt: new Date().toISOString()
-    }
+    inquiry
   });
 });
 

@@ -6,6 +6,7 @@ import Favorites from "./pages/Favorites.jsx";
 import Home from "./pages/Home.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import Account from "./pages/Account.jsx";
+import AdminDashboard from "./pages/AdminDashboard.jsx";
 import AuthPage from "./pages/AuthPage.jsx";
 import Buy from "./pages/Buy.jsx";
 import Properties from "./pages/Properties.jsx";
@@ -16,6 +17,7 @@ import Services from "./pages/Services.jsx";
 function App() {
   return (
     <Routes>
+      <Route path="admin" element={<AdminDashboard />} />
       <Route element={<Layout />}>
         <Route index element={<Home />} />
         <Route path="properties" element={<Properties />} />
