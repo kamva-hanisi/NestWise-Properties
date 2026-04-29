@@ -52,12 +52,6 @@ function AuthPage({ mode }) {
             ? "Create an account to book viewings, rent homes, and request to buy properties."
             : "Access your bookings and send buy or rent requests as a registered client."}
         </p>
-        {!isSignup && (
-          <p className="demo-admin">
-            Admin demo: admin@nestwise.co.za / admin123
-          </p>
-        )}
-
         <form className="auth-form" onSubmit={handleSubmit}>
           {isSignup && (
             <>

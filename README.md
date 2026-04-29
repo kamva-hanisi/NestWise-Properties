@@ -92,16 +92,6 @@ For the demo, you can copy `.env.example` to `.env` and adjust:
 
 The JSON store is enough for a demo. A real deployed version would normally use MongoDB, PostgreSQL, or MySQL.
 
-## Demo Admin
-
-Use this account to open the demo admin dashboard:
-
-- Email: `admin@nestwise.co.za`
-- Password: `admin123`
-
-The admin dashboard can see clients, bookings, rent requests, buy requests, public inquiries, property totals, and can update booking statuses.
-
-
 Run the project:
 
 `npm run dev`
@@ -135,14 +125,8 @@ Client can browse houses, book viewing, request to buy, request to rent, and see
 
 Go to:
 
-`http://localhost:5173/signin`
-
-Login with:
-Email: `admin@nestwise.co.za`
-Password: admin123
-
-Then open:
-
 `http://localhost:5173/admin`
+
+Login with the admin account configured in `.env` or `.env.example`.
 
 Admin can see clients, bookings, renters, buyers, inquiries, and update booking statuses.

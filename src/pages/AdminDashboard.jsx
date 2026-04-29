@@ -14,8 +14,8 @@ const statusOptions = [
 function AdminDashboard() {
   const { isAuthenticated, user, login, logout } = useAuth();
   const [form, setForm] = useState({
-    email: "admin@nestwise.co.za",
-    password: "admin123"
+    email: "",
+    password: ""
   });
   const [dashboard, setDashboard] = useState({
     stats: {},
@@ -91,7 +91,6 @@ function AdminDashboard() {
             <p className="eyebrow">Admin Side</p>
             <h1>Company admin login</h1>
             <p>Sign in here to view client accounts, bookings, renters, buyers, and inquiries.</p>
-            <p className="demo-admin">Demo admin: admin@nestwise.co.za / admin123</p>
             <form className="auth-form" onSubmit={handleAdminLogin}>
               <label>
                 <span>Email</span>

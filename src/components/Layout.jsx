@@ -62,22 +62,13 @@ function Layout() {
                 </button>
               </>
             ) : (
-              <>
-                <NavLink
-                  to="/signin"
-                  onClick={() => setMenuOpen(false)}
-                  className={({ isActive }) => (isActive ? "is-active" : "")}
-                >
-                  Sign In
-                </NavLink>
-                <NavLink
-                  to="/signup"
-                  onClick={() => setMenuOpen(false)}
-                  className="nav-pill"
-                >
-                  Sign Up
-                </NavLink>
-              </>
+              <NavLink
+                to="/signin"
+                onClick={() => setMenuOpen(false)}
+                className="nav-auth-button"
+              >
+                Sign In / Sign Up
+              </NavLink>
             )}
           </div>
         </nav>

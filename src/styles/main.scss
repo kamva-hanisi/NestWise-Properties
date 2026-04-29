@@ -159,6 +159,27 @@ img {
   background: white;
 }
 
+.nav-auth-button {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 16px;
+  border-radius: 7px;
+  color: #161106 !important;
+  background: $gold;
+  box-shadow: 0 8px 18px rgba(217, 164, 65, 0.24);
+  font-weight: 800 !important;
+  transition: transform 180ms ease, background 180ms ease, box-shadow 180ms ease;
+
+  &:hover {
+    color: #0e1714 !important;
+    background: #f0c15a;
+    box-shadow: 0 12px 24px rgba(217, 164, 65, 0.34);
+    transform: translateY(-2px);
+  }
+}
+
 .menu-toggle {
   display: none;
   width: 42px;
