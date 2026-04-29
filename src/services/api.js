@@ -11,6 +11,12 @@ const request = async (path, options) => {
   return data;
 };
 
+const authHeaders = () => {
+  const token = localStorage.getItem("nestwise:token");
+
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
 export const getProperties = (filters = {}) => {
   const params = new URLSearchParams();
 
@@ -31,4 +37,35 @@ export const createInquiry = (payload) =>
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)
+  });
+
+export const signUp = (payload) =>
+  request("/auth/signup", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+
+export const signIn = (payload) =>
+  request("/auth/signin", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+
+export const getMe = () =>
+  request("/auth/me", {
+    headers: authHeaders()
+  });
+
+export const createBooking = (payload) =>
+  request("/bookings", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify(payload)
+  });
+
+export const getBookings = () =>
+  request("/bookings", {
+    headers: authHeaders()
   });

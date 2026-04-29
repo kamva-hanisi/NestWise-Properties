@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
+import { useAuth } from "../context/AuthContext.jsx";
 
 const links = [
   { label: "Home", to: "/" },
-  { label: "Properties", to: "/properties" },
+  { label: "Buy", to: "/buy" },
+  { label: "Rent", to: "/rent" },
   { label: "Services", to: "/services" },
   { label: "About", to: "/about" },
   { label: "Favorites", to: "/favorites" },
@@ -12,6 +14,7 @@ const links = [
 
 function Layout() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { isAuthenticated, user, logout } = useAuth();
 
   return (
     <div className="app-shell">
@@ -45,6 +48,37 @@ function Layout() {
                 {link.label}
               </NavLink>
             ))}
+            {isAuthenticated ? (
+              <>
+                <NavLink
+                  to="/account"
+                  onClick={() => setMenuOpen(false)}
+                  className={({ isActive }) => (isActive ? "is-active" : "")}
+                >
+                  {user.name}
+                </NavLink>
+                <button className="nav-button" type="button" onClick={logout}>
+                  Sign Out
+                </button>
+              </>
+            ) : (
+              <>
+                <NavLink
+                  to="/signin"
+                  onClick={() => setMenuOpen(false)}
+                  className={({ isActive }) => (isActive ? "is-active" : "")}
+                >
+                  Sign In
+                </NavLink>
+                <NavLink
+                  to="/signup"
+                  onClick={() => setMenuOpen(false)}
+                  className="nav-pill"
+                >
+                  Sign Up
+                </NavLink>
+              </>
+            )}
           </div>
         </nav>
       </header>

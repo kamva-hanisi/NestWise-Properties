@@ -138,6 +138,27 @@ img {
   }
 }
 
+.nav-button,
+.nav-pill {
+  min-height: 36px;
+  border: 0;
+  border-radius: 7px;
+  padding: 7px 12px;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+}
+
+.nav-button {
+  color: rgba(255, 255, 255, 0.78);
+  background: transparent;
+}
+
+.nav-pill {
+  color: $ink !important;
+  background: white;
+}
+
 .menu-toggle {
   display: none;
   width: 42px;
@@ -717,6 +738,114 @@ textarea {
   }
 }
 
+.auth-page {
+  display: grid;
+  place-items: center;
+  min-height: 78vh;
+}
+
+.auth-card {
+  width: min(620px, 100%);
+  padding: 30px;
+  border: 1px solid $line;
+  border-radius: 8px;
+  background: white;
+  box-shadow: 0 18px 50px rgba(18, 32, 28, 0.1);
+
+  h1 {
+    margin: 0;
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1.12;
+  }
+
+  > p:not(.eyebrow) {
+    color: $muted;
+  }
+}
+
+.auth-form,
+.booking-form {
+  display: grid;
+  gap: 14px;
+}
+
+.auth-switch {
+  margin-bottom: 0;
+
+  a {
+    color: $accent;
+    font-weight: 800;
+  }
+}
+
+.auth-required {
+  padding: 18px;
+  border: 1px solid $line;
+  border-radius: 8px;
+  background: $soft;
+
+  h3 {
+    margin-top: 0;
+  }
+
+  p {
+    color: $muted;
+  }
+}
+
+.auth-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.booking-form {
+  .alert {
+    margin: 0;
+  }
+}
+
+.signed-in-note {
+  margin: 0;
+  color: $accent;
+  font-weight: 800;
+}
+
+.account-grid {
+  display: grid;
+  grid-template-columns: 0.8fr 1.2fr;
+  gap: 24px;
+}
+
+.booking-list {
+  display: grid;
+  gap: 12px;
+
+  article {
+    padding: 14px;
+    border: 1px solid $line;
+    border-radius: 8px;
+    background: $soft;
+  }
+
+  strong,
+  span {
+    display: block;
+  }
+
+  span {
+    color: $accent;
+    font-weight: 800;
+    text-transform: capitalize;
+  }
+
+  p {
+    margin-bottom: 0;
+    color: $muted;
+  }
+}
+
 .empty-page {
   text-align: center;
 
@@ -745,7 +874,8 @@ footer {
   .about-section,
   .contact-layout,
   .detail-hero,
-  .detail-layout {
+  .detail-layout,
+  .account-grid {
     grid-template-columns: 1fr;
   }
 

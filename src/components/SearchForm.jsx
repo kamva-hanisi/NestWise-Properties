@@ -5,7 +5,7 @@ const defaultSearch = {
   status: ""
 };
 
-function SearchForm({ filters, setFilters, onSubmit, onReset }) {
+function SearchForm({ filters, setFilters, onSubmit, onReset, lockedStatus = "" }) {
   const current = filters || defaultSearch;
 
   const handleChange = (event) => {
@@ -45,7 +45,12 @@ function SearchForm({ filters, setFilters, onSubmit, onReset }) {
       </label>
       <label>
         <span>Status</span>
-        <select name="status" value={current.status} onChange={handleChange}>
+        <select
+          name="status"
+          value={lockedStatus || current.status}
+          onChange={handleChange}
+          disabled={Boolean(lockedStatus)}
+        >
           <option value="">Any status</option>
           <option value="For Sale">For Sale</option>
           <option value="For Rent">For Rent</option>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import BookingForm from "../components/BookingForm.jsx";
 import ContactForm from "../components/ContactForm.jsx";
 import { useFavorites } from "../hooks/useFavorites.js";
 import { getProperties, getProperty } from "../services/api.js";
@@ -100,7 +101,15 @@ function PropertyDetails() {
         </div>
 
         <div className="detail-panel">
-          <h2>Book a Viewing</h2>
+          <h2>Book, Buy, or Rent</h2>
+          <BookingForm
+            property={property}
+            action={property.status === "For Rent" ? "rent" : "buy"}
+          />
+        </div>
+
+        <div className="detail-panel">
+          <h2>General Contact</h2>
           <ContactForm properties={properties} selectedProperty={property} />
         </div>
       </div>
