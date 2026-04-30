@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Link, Navigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
+import AdminHeader from "../components/AdminHeader.jsx";
 import SectionHeader from "../components/SectionHeader.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import { changePassword, updateProfile } from "../services/api.js";
@@ -96,18 +97,7 @@ function AdminSettings() {
 
   return (
     <div className="admin-shell">
-      <header className="admin-topbar">
-        <div className="container">
-          <strong>NestWise Admin</strong>
-          <div>
-            <Link to="/admin">Dashboard</Link>
-            <a href="/">Client Site</a>
-            <button className="nav-button" type="button" onClick={logout}>
-              Sign Out
-            </button>
-          </div>
-        </div>
-      </header>
+      <AdminHeader logout={logout} />
 
       <section className="section container page-section settings-page">
         <SectionHeader

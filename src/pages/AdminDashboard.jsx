@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import AdminHeader from "../components/AdminHeader.jsx";
 import SectionHeader from "../components/SectionHeader.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import { deleteAdminClient, getAdminDashboard, updateBookingStatus } from "../services/api.js";
@@ -208,18 +208,7 @@ function AdminDashboard() {
 
   return (
     <div className="admin-shell">
-      <header className="admin-topbar">
-        <div className="container">
-          <strong>NestWise Admin</strong>
-          <div>
-            <Link to="/admin/settings">Settings</Link>
-            <a href="/">Client Site</a>
-            <button className="nav-button" type="button" onClick={logout}>
-              Sign Out
-            </button>
-          </div>
-        </div>
-      </header>
+      <AdminHeader logout={logout} showDashboard={false} />
       <section className="section container page-section admin-page">
         <SectionHeader
           eyebrow="Admin Side"
