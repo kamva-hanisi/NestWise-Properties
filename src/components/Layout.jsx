@@ -4,25 +4,34 @@ import { useAuth } from "../context/AuthContext.jsx";
 
 const links = [
   { label: "Home", to: "/" },
-  { label: "Buy Houses", to: "/buy/houses" },
-  { label: "Buy Apartments", to: "/buy/apartments" },
-  { label: "Rent Houses", to: "/rent/houses" },
-  { label: "Rent Apartments", to: "/rent/apartments" },
-  { label: "Post Property", to: "/post/sell" },
   { label: "Services", to: "/services" },
   { label: "About", to: "/about" },
   { label: "Contact", to: "/contact" }
 ];
 
+const propertyLinks = [
+  { label: "Buy Houses", to: "/buy/houses" },
+  { label: "Rent Houses", to: "/rent/houses" },
+  { label: "Buy Apartments", to: "/buy/apartments" },
+  { label: "Rent Apartments", to: "/rent/apartments" },
+  { label: "Sell My Property", to: "/post/sell" },
+  { label: "Rent Out My Property", to: "/post/rent" }
+];
+
 function Layout() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [propertyOpen, setPropertyOpen] = useState(false);
   const { isAuthenticated, user, logout } = useAuth();
+  const closeMenu = () => {
+    setMenuOpen(false);
+    setPropertyOpen(false);
+  };
 
   return (
     <div className="app-shell">
       <header className="topbar">
         <nav className="navbar container">
-          <NavLink className="brand" to="/" onClick={() => setMenuOpen(false)}>
+          <NavLink className="brand" to="/" onClick={closeMenu}>
             NestWise Properties
           </NavLink>
 
@@ -31,7 +40,10 @@ function Layout() {
             type="button"
             aria-label="Toggle navigation"
             aria-expanded={menuOpen}
-            onClick={() => setMenuOpen((open) => !open)}
+            onClick={() => {
+              setMenuOpen((open) => !open);
+              setPropertyOpen(false);
+            }}
           >
             <span />
             <span />
@@ -43,18 +55,40 @@ function Layout() {
               <NavLink
                 key={link.to}
                 to={link.to}
-                onClick={() => setMenuOpen(false)}
+                onClick={closeMenu}
                 className={({ isActive }) => (isActive ? "is-active" : "")}
                 end={link.to === "/"}
               >
                 {link.label}
               </NavLink>
             ))}
+            <div className={`nav-dropdown ${propertyOpen ? "is-open" : ""}`}>
+              <button
+                className="nav-dropdown-trigger"
+                type="button"
+                aria-expanded={propertyOpen}
+                onClick={() => setPropertyOpen((open) => !open)}
+              >
+                Property Hub
+              </button>
+              <div className="nav-dropdown-menu">
+                {propertyLinks.map((link) => (
+                  <NavLink
+                    key={link.to}
+                    to={link.to}
+                    onClick={closeMenu}
+                    className={({ isActive }) => (isActive ? "is-active" : "")}
+                  >
+                    {link.label}
+                  </NavLink>
+                ))}
+              </div>
+            </div>
             {isAuthenticated ? (
               <>
                 <NavLink
                   to="/account"
-                  onClick={() => setMenuOpen(false)}
+                  onClick={closeMenu}
                   className={({ isActive }) => (isActive ? "is-active" : "")}
                 >
                   {user.name}
@@ -66,7 +100,7 @@ function Layout() {
             ) : (
               <NavLink
                 to="/signin"
-                onClick={() => setMenuOpen(false)}
+                onClick={closeMenu}
                 className="nav-auth-button"
               >
                 Sign In / Sign Up
