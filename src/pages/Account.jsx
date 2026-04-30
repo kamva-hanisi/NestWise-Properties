@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
 import SectionHeader from "../components/SectionHeader.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
-import { getBookings } from "../services/api.js";
+import { getBookings, getOwnerPosts } from "../services/api.js";
 
 const timeAgo = (value) => {
   if (!value) return "Never";
@@ -28,6 +28,7 @@ const statusClass = (status = "") =>
 function Account() {
   const { isAuthenticated, user } = useAuth();
   const [bookings, setBookings] = useState([]);
+  const [ownerPosts, setOwnerPosts] = useState([]);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -35,6 +36,9 @@ function Account() {
 
     getBookings()
       .then((data) => setBookings(data.bookings))
+      .catch((apiError) => setError(apiError.message));
+    getOwnerPosts()
+      .then((data) => setOwnerPosts(data.posts))
       .catch((apiError) => setError(apiError.message));
   }, [isAuthenticated]);
 
@@ -66,6 +70,12 @@ function Account() {
             <Link className="button button-secondary" to="/settings">
               Settings
             </Link>
+            <Link className="button button-primary" to="/post/sell">
+              Sell My Property
+            </Link>
+            <Link className="button button-ghost" to="/post/rent">
+              Rent Out My Property
+            </Link>
           </div>
         </div>
 
@@ -86,6 +96,25 @@ function Account() {
                   <p>{booking.viewingDate ? `Preferred date: ${booking.viewingDate}` : "No date selected"}</p>
                   {booking.personalDetails?.phone && <p>Phone: {booking.personalDetails.phone}</p>}
                   <p>Submitted: {timeAgo(booking.createdAt)}</p>
+                </article>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="detail-panel">
+          <h2>My Property Posts</h2>
+          {!ownerPosts.length ? (
+            <p className="status">You have not posted a property for NestWise yet.</p>
+          ) : (
+            <div className="booking-list">
+              {ownerPosts.map((post) => (
+                <article key={post.id}>
+                  <strong>{post.title}</strong>
+                  <span>{post.listingGoal === "rent-out" ? "Rent out" : "Sell"}</span>
+                  <p>{post.status}</p>
+                  <p>{post.location}</p>
+                  <p>Expected: {post.expectedPrice}</p>
                 </article>
               ))}
             </div>

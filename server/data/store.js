@@ -9,7 +9,8 @@ const DB_PATH = process.env.DB_FILE || path.join(__dirname, "db.json");
 const defaultData = {
   users: [],
   bookings: [],
-  inquiries: []
+  inquiries: [],
+  ownerPosts: []
 };
 
 const ensureDb = () => {

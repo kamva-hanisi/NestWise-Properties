@@ -64,10 +64,16 @@ Client routes:
 
 - `/`
 - `/buy`
+- `/buy/houses`
+- `/buy/apartments`
 - `/rent`
+- `/rent/houses`
+- `/rent/apartments`
 - `/properties`
 - `/properties/:id`
 - `/request/:id`
+- `/post/sell`
+- `/post/rent`
 - `/services`
 - `/about`
 - `/contact`
@@ -137,3 +143,10 @@ Admin can see clients, bookings, renters, buyers, inquiries, and update booking 
 Clients now choose a request type and preferred date on a property, continue to a personal details form, then submit the full booking/rent/buy request. Client accounts show request status and last-seen information.
 
 Admin dashboard separates booking, renting, and buying requests, shows client details and last-seen time, and can delete a client account plus that client's requests when finished.
+
+Clients can also post their own property for NestWise to sell or rent out:
+
+- `/post/sell`
+- `/post/rent`
+
+Admin can see these owner property posts in the admin dashboard.

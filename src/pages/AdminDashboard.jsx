@@ -44,7 +44,8 @@ function AdminDashboard() {
     clients: [],
     renters: [],
     buyers: [],
-    inquiries: []
+    inquiries: [],
+    ownerPosts: []
   });
   const [error, setError] = useState("");
   const [authError, setAuthError] = useState("");
@@ -257,6 +258,10 @@ function AdminDashboard() {
             <strong>{dashboard.stats.inquiries || 0}</strong>
             <span>Inquiries</span>
           </div>
+          <div>
+            <strong>{dashboard.stats.ownerPosts || 0}</strong>
+            <span>Owner Posts</span>
+          </div>
         </div>
 
         <div className="admin-request-stack">
@@ -267,6 +272,26 @@ function AdminDashboard() {
 
         <div className="admin-layout">
           <div className="admin-side">
+            <div className="detail-panel">
+              <h2>Owner Property Posts</h2>
+              {!dashboard.ownerPosts.length ? (
+                <p className="status">No owner property posts yet.</p>
+              ) : (
+                <div className="client-list">
+                  {dashboard.ownerPosts.map((post) => (
+                    <article key={post.id}>
+                      <strong>{post.title}</strong>
+                      <span>{post.listingGoal === "rent-out" ? "Rent out" : "Sell"}</span>
+                      <span>{post.propertyType}</span>
+                      <span>{post.location}</span>
+                      <span>Expected: {post.expectedPrice}</span>
+                      <span>Owner: {post.client?.name || "Client"}</span>
+                    </article>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <div className="detail-panel">
               <h2>Clients</h2>
               {!dashboard.clients.length ? (

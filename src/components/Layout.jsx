@@ -4,11 +4,13 @@ import { useAuth } from "../context/AuthContext.jsx";
 
 const links = [
   { label: "Home", to: "/" },
-  { label: "Buy", to: "/buy" },
-  { label: "Rent", to: "/rent" },
+  { label: "Buy Houses", to: "/buy/houses" },
+  { label: "Buy Apartments", to: "/buy/apartments" },
+  { label: "Rent Houses", to: "/rent/houses" },
+  { label: "Rent Apartments", to: "/rent/apartments" },
+  { label: "Post Property", to: "/post/sell" },
   { label: "Services", to: "/services" },
   { label: "About", to: "/about" },
-  { label: "Favorites", to: "/favorites" },
   { label: "Contact", to: "/contact" }
 ];
 

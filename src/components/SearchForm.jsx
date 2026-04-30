@@ -5,7 +5,14 @@ const defaultSearch = {
   status: ""
 };
 
-function SearchForm({ filters, setFilters, onSubmit, onReset, lockedStatus = "" }) {
+function SearchForm({
+  filters,
+  setFilters,
+  onSubmit,
+  onReset,
+  lockedStatus = "",
+  lockedType = ""
+}) {
   const current = filters || defaultSearch;
 
   const handleChange = (event) => {
@@ -26,7 +33,12 @@ function SearchForm({ filters, setFilters, onSubmit, onReset, lockedStatus = "" 
       </label>
       <label>
         <span>Property Type</span>
-        <select name="type" value={current.type} onChange={handleChange}>
+        <select
+          name="type"
+          value={lockedType || current.type}
+          onChange={handleChange}
+          disabled={Boolean(lockedType)}
+        >
           <option value="">Any type</option>
           <option value="House">House</option>
           <option value="Townhouse">Townhouse</option>

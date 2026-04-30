@@ -90,6 +90,18 @@ export const getBookings = () =>
     headers: authHeaders()
   });
 
+export const getOwnerPosts = () =>
+  request("/owner-posts", {
+    headers: authHeaders()
+  });
+
+export const createOwnerPost = (payload) =>
+  request("/owner-posts", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify(payload)
+  });
+
 export const getAdminDashboard = () =>
   request("/admin/dashboard", {
     headers: authHeaders()

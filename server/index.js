@@ -232,6 +232,10 @@ app.get("/api/admin/dashboard", requireAdmin, (_req, res) => {
     ...inquiry,
     property: properties.find((property) => property.id === Number(inquiry.propertyId))
   }));
+  const enrichedOwnerPosts = (data.ownerPosts || []).map((post) => ({
+    ...post,
+    client: publicUser(data.users.find((user) => user.id === post.userId))
+  }));
 
   return res.json({
     stats: {
@@ -241,13 +245,15 @@ app.get("/api/admin/dashboard", requireAdmin, (_req, res) => {
       buyers: data.bookings.filter((booking) => booking.action === "buy").length,
       pending: data.bookings.filter((booking) => booking.status === "Pending agent review").length,
       properties: properties.length,
-      inquiries: data.inquiries.length
+      inquiries: data.inquiries.length,
+      ownerPosts: (data.ownerPosts || []).length
     },
     bookings: enrichedBookings,
     clients: clientUsers.map(publicUser),
     renters: enrichedBookings.filter((booking) => booking.action === "rent"),
     buyers: enrichedBookings.filter((booking) => booking.action === "buy"),
-    inquiries: enrichedInquiries
+    inquiries: enrichedInquiries,
+    ownerPosts: enrichedOwnerPosts
   });
 });
 
@@ -390,6 +396,59 @@ app.get("/api/bookings", requireAuth, (req, res) => {
     }));
 
   return res.json({ count: userBookings.length, bookings: userBookings });
+});
+
+app.get("/api/owner-posts", requireAuth, (req, res) => {
+  const posts = (readStore().ownerPosts || []).filter((post) => post.userId === req.user.id);
+
+  return res.json({ count: posts.length, posts });
+});
+
+app.post("/api/owner-posts", requireAuth, (req, res) => {
+  const {
+    listingGoal,
+    propertyType,
+    title,
+    location,
+    expectedPrice,
+    bedrooms,
+    bathrooms,
+    ownerNotes,
+    contactPreference
+  } = req.body;
+
+  if (!listingGoal || !propertyType || !title || !location || !expectedPrice) {
+    return res.status(400).json({
+      message: "Please provide listing goal, property type, title, location, and expected price."
+    });
+  }
+
+  const post = {
+    id: Date.now(),
+    userId: req.user.id,
+    listingGoal,
+    propertyType,
+    title,
+    location,
+    expectedPrice,
+    bedrooms: bedrooms || "",
+    bathrooms: bathrooms || "",
+    ownerNotes: ownerNotes || "",
+    contactPreference: contactPreference || "phone",
+    status: "New owner request",
+    createdAt: new Date().toISOString()
+  };
+
+  updateStore((data) => {
+    data.ownerPosts = data.ownerPosts || [];
+    data.ownerPosts.push(post);
+    return data;
+  });
+
+  return res.status(201).json({
+    message: "Your property post has been sent to NestWise.",
+    post
+  });
 });
 
 app.post("/api/bookings", requireAuth, (req, res) => {

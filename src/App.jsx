@@ -10,9 +10,14 @@ import AdminDashboard from "./pages/AdminDashboard.jsx";
 import AdminSettings from "./pages/AdminSettings.jsx";
 import AuthPage from "./pages/AuthPage.jsx";
 import Buy from "./pages/Buy.jsx";
+import BuyApartments from "./pages/BuyApartments.jsx";
+import BuyHouses from "./pages/BuyHouses.jsx";
+import OwnerPost from "./pages/OwnerPost.jsx";
 import Properties from "./pages/Properties.jsx";
 import PropertyDetails from "./pages/PropertyDetails.jsx";
 import Rent from "./pages/Rent.jsx";
+import RentApartments from "./pages/RentApartments.jsx";
+import RentHouses from "./pages/RentHouses.jsx";
 import RequestDetails from "./pages/RequestDetails.jsx";
 import Settings from "./pages/Settings.jsx";
 import Services from "./pages/Services.jsx";
@@ -28,7 +33,13 @@ function App() {
         <Route path="properties/:id" element={<PropertyDetails />} />
         <Route path="request/:id" element={<RequestDetails />} />
         <Route path="buy" element={<Buy />} />
+        <Route path="buy/houses" element={<BuyHouses />} />
+        <Route path="buy/apartments" element={<BuyApartments />} />
         <Route path="rent" element={<Rent />} />
+        <Route path="rent/houses" element={<RentHouses />} />
+        <Route path="rent/apartments" element={<RentApartments />} />
+        <Route path="post/sell" element={<OwnerPost goal="sell" />} />
+        <Route path="post/rent" element={<OwnerPost goal="rent-out" />} />
         <Route path="services" element={<Services />} />
         <Route path="about" element={<About />} />
         <Route path="contact" element={<Contact />} />

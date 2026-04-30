@@ -5,9 +5,9 @@ import SectionHeader from "../components/SectionHeader.jsx";
 import { useFavorites } from "../hooks/useFavorites.js";
 import { getProperties } from "../services/api.js";
 
-function PropertyMarketPage({ status, eyebrow, title, text }) {
+function PropertyMarketPage({ status, type = "", eyebrow, title, text }) {
   const [properties, setProperties] = useState([]);
-  const [filters, setFilters] = useState({ ...defaultSearch, status });
+  const [filters, setFilters] = useState({ ...defaultSearch, status, type });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const { favorites, toggleFavorite } = useFavorites();
@@ -17,7 +17,7 @@ function PropertyMarketPage({ status, eyebrow, title, text }) {
     setError("");
 
     try {
-      const data = await getProperties({ ...nextFilters, status });
+      const data = await getProperties({ ...nextFilters, status, type });
       setProperties(data.properties);
     } catch (apiError) {
       setError(apiError.message);
@@ -27,8 +27,8 @@ function PropertyMarketPage({ status, eyebrow, title, text }) {
   };
 
   useEffect(() => {
-    loadProperties({ ...defaultSearch, status });
-  }, [status]);
+    loadProperties({ ...defaultSearch, status, type });
+  }, [status, type]);
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -36,7 +36,7 @@ function PropertyMarketPage({ status, eyebrow, title, text }) {
   };
 
   const handleReset = () => {
-    const resetFilters = { ...defaultSearch, status };
+    const resetFilters = { ...defaultSearch, status, type };
     setFilters(resetFilters);
     loadProperties(resetFilters);
   };
@@ -46,7 +46,7 @@ function PropertyMarketPage({ status, eyebrow, title, text }) {
       <SectionHeader
         eyebrow={eyebrow}
         title={title}
-        text={`${properties.length} ${status.toLowerCase()} listings from the backend. ${text}`}
+        text={`${properties.length} ${status.toLowerCase()} ${type || "property"} listings from the backend. ${text}`}
       />
 
       <SearchForm
@@ -55,6 +55,7 @@ function PropertyMarketPage({ status, eyebrow, title, text }) {
         onSubmit={handleSubmit}
         onReset={handleReset}
         lockedStatus={status}
+        lockedType={type}
       />
 
       <div className="page-results">

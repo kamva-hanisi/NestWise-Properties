@@ -190,6 +190,38 @@ export const properties = [
     area: "1 100m2",
     image: "/images/house1.png",
     featured: true
+  },
+  {
+    id: 13,
+    title: "Cityline Apartment for Sale",
+    location: "United Arab Emirates, Dubai",
+    city: "Dubai",
+    province: "Dubai",
+    type: "Apartment",
+    status: "For Sale",
+    price: 1450000,
+    beds: 2,
+    baths: 2,
+    size: "8x10m",
+    area: "96m2",
+    image: "/images/house 5.jpg",
+    featured: true
+  },
+  {
+    id: 14,
+    title: "Quiet Rental House",
+    location: "United Kingdom, London",
+    city: "London",
+    province: "Greater London",
+    type: "House",
+    status: "For Rent",
+    price: 31000,
+    beds: 3,
+    baths: 2,
+    size: "11x10m",
+    area: "180m2",
+    image: "/images/house 4.jpg",
+    featured: false
   }
 ];
 
