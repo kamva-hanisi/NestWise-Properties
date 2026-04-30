@@ -150,3 +150,32 @@ Clients can also post their own property for NestWise to sell or rent out:
 - `/post/rent`
 
 Admin can see these owner property posts in the admin dashboard.
+
+## Deploy On Render
+
+This project can deploy as one full-stack web service because Express serves the built React app from `dist`.
+
+1. Push this project to GitHub.
+2. Open Render and create a new Blueprint or Web Service from the repository.
+3. If using the included `render.yaml`, Render will use:
+
+```bash
+npm install && npm run build
+npm start
+```
+
+4. Add these environment variables in Render:
+
+```env
+AUTH_SECRET=use-a-long-random-secret
+ADMIN_EMAIL=your-admin-email@example.com
+ADMIN_PASSWORD=your-strong-admin-password
+DB_FILE=server/data/db.json
+```
+
+After deploy:
+
+- Client side: `https://your-render-app.onrender.com`
+- Admin side: `https://your-render-app.onrender.com/admin`
+
+Note: `server/data/db.json` is fine for a demo. Hosted files can reset on some free hosting setups, so use MongoDB, PostgreSQL, or MySQL later if you need permanent data.
