@@ -892,6 +892,12 @@ textarea {
   }
 }
 
+.signup-checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
 .demo-admin {
   padding: 10px 12px;
   border-radius: 7px;
@@ -938,6 +944,30 @@ textarea {
   display: grid;
   grid-template-columns: 0.8fr 1.2fr;
   gap: 24px;
+}
+
+.profile-summary {
+  display: grid;
+  gap: 12px;
+
+  div {
+    display: grid;
+    gap: 4px;
+    padding: 12px;
+    border-radius: 8px;
+    background: $soft;
+  }
+
+  span {
+    color: $muted;
+    font-size: 0.76rem;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  strong {
+    overflow-wrap: anywhere;
+  }
 }
 
 .booking-list {

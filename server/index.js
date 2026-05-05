@@ -86,6 +86,13 @@ const publicUser = (user) => ({
   }
 });
 
+const normalizePreferences = (preferences = {}, defaults = {}) => ({
+  emailUpdates: preferences.emailUpdates ?? defaults.emailUpdates ?? true,
+  smsUpdates: preferences.smsUpdates ?? defaults.smsUpdates ?? false,
+  preferredMarket: preferences.preferredMarket || defaults.preferredMarket || "buy",
+  preferredProvince: preferences.preferredProvince || defaults.preferredProvince || ""
+});
+
 const getUserFromRequest = (req) => {
   const authHeader = req.headers.authorization || "";
   const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
@@ -158,7 +165,7 @@ app.get("/api/health", (_req, res) => {
 });
 
 app.post("/api/auth/signup", (req, res) => {
-  const { name, email, phone, password } = req.body;
+  const { name, email, phone, password, preferences } = req.body;
   const cleanEmail = normalize(email);
   const data = readStore();
 
@@ -187,6 +194,7 @@ app.post("/api/auth/signup", (req, res) => {
     phone: phone || "",
     passwordHash: hashPassword(password),
     role: "client",
+    preferences: normalizePreferences(preferences),
     createdAt: new Date().toISOString()
   };
   const token = signToken(user);

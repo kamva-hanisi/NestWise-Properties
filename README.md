@@ -92,12 +92,43 @@ Admin side starts at:
 
 Client accounts, bookings, and public inquiries are stored in `server/data/db.json`. The file is ignored by git so demo data is not committed. Passwords are stored as salted hashes, and auth uses signed bearer tokens.
 
+## MySQL Database
+
+A full MySQL database export is available at `database/nestwise_mysql.sql`. It creates the `nestwise_properties` database and seeds:
+
+- `users`
+- `properties`
+- `agents`
+- `inquiries`
+- `owner_posts`
+- `bookings`
+
+To use it with Beekeeper Studio:
+
+1. Start MySQL locally.
+2. Open Beekeeper Studio and connect with:
+
+```text
+Host: 127.0.0.1
+Port: 3306
+User: root
+Database: nestwise_properties
+```
+
+3. Open `database/nestwise_mysql.sql` in Beekeeper and run the whole script.
+4. Refresh the connection and browse the tables.
+
 For the demo, you can copy `.env.example` to `.env` and adjust:
 
 - `AUTH_SECRET`
 - `ADMIN_EMAIL`
 - `ADMIN_PASSWORD`
 - `DB_FILE`
+- `MYSQL_HOST`
+- `MYSQL_PORT`
+- `MYSQL_USER`
+- `MYSQL_PASSWORD`
+- `MYSQL_DATABASE`
 
 The JSON store is enough for a demo. A real deployed version would normally use MongoDB, PostgreSQL, or MySQL.
 

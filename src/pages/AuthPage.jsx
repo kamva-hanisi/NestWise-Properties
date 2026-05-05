@@ -6,7 +6,13 @@ const initialForm = {
   name: "",
   email: "",
   phone: "",
-  password: ""
+  password: "",
+  preferences: {
+    emailUpdates: true,
+    smsUpdates: false,
+    preferredMarket: "buy",
+    preferredProvince: ""
+  }
 };
 
 function AuthPage({ mode }) {
@@ -21,7 +27,20 @@ function AuthPage({ mode }) {
   }
 
   const handleChange = (event) => {
-    const { name, value } = event.target;
+    const { name, value, type, checked } = event.target;
+
+    if (name.startsWith("preferences.")) {
+      const key = name.replace("preferences.", "");
+      setForm((current) => ({
+        ...current,
+        preferences: {
+          ...current.preferences,
+          [key]: type === "checkbox" ? checked : value
+        }
+      }));
+      return;
+    }
+
     setForm((current) => ({ ...current, [name]: value }));
   };
 
@@ -63,6 +82,47 @@ function AuthPage({ mode }) {
                 <span>Phone</span>
                 <input name="phone" value={form.phone} onChange={handleChange} />
               </label>
+              <label>
+                <span>Preferred Market</span>
+                <select
+                  name="preferences.preferredMarket"
+                  value={form.preferences.preferredMarket}
+                  onChange={handleChange}
+                >
+                  <option value="buy">Buying</option>
+                  <option value="rent">Renting</option>
+                  <option value="both">Both</option>
+                </select>
+              </label>
+              <label>
+                <span>Preferred Province</span>
+                <input
+                  name="preferences.preferredProvince"
+                  value={form.preferences.preferredProvince}
+                  onChange={handleChange}
+                  placeholder="Eastern Cape"
+                />
+              </label>
+              <div className="signup-checks">
+                <label className="setting-check">
+                  <input
+                    name="preferences.emailUpdates"
+                    type="checkbox"
+                    checked={form.preferences.emailUpdates}
+                    onChange={handleChange}
+                  />
+                  <span>Email updates</span>
+                </label>
+                <label className="setting-check">
+                  <input
+                    name="preferences.smsUpdates"
+                    type="checkbox"
+                    checked={form.preferences.smsUpdates}
+                    onChange={handleChange}
+                  />
+                  <span>SMS updates</span>
+                </label>
+              </div>
             </>
           )}
           <label>

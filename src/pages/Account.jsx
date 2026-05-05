@@ -25,6 +25,12 @@ const statusClass = (status = "") =>
       ? "declined"
       : "pending";
 
+const marketLabel = {
+  buy: "Buying",
+  rent: "Renting",
+  both: "Buying and renting"
+};
+
 function Account() {
   const { isAuthenticated, user } = useAuth();
   const [bookings, setBookings] = useState([]);
@@ -56,10 +62,44 @@ function Account() {
 
       <div className="account-grid">
         <div className="detail-panel">
-          <h2>Client Details</h2>
-          <p>{user.email}</p>
-          {user.phone && <p>{user.phone}</p>}
-          <p>Last seen: {timeAgo(user.lastSeenAt)}</p>
+          <h2>Profile</h2>
+          <div className="profile-summary">
+            <div>
+              <span>Full Name</span>
+              <strong>{user.name}</strong>
+            </div>
+            <div>
+              <span>Email</span>
+              <strong>{user.email}</strong>
+            </div>
+            <div>
+              <span>Phone</span>
+              <strong>{user.phone || "Not added"}</strong>
+            </div>
+            <div>
+              <span>Preferred Market</span>
+              <strong>{marketLabel[user.preferences?.preferredMarket] || "Buying"}</strong>
+            </div>
+            <div>
+              <span>Preferred Province</span>
+              <strong>{user.preferences?.preferredProvince || "Any province"}</strong>
+            </div>
+            <div>
+              <span>Updates</span>
+              <strong>
+                {[
+                  user.preferences?.emailUpdates ? "Email" : "",
+                  user.preferences?.smsUpdates ? "SMS" : ""
+                ]
+                  .filter(Boolean)
+                  .join(" and ") || "Off"}
+              </strong>
+            </div>
+            <div>
+              <span>Last Seen</span>
+              <strong>{timeAgo(user.lastSeenAt)}</strong>
+            </div>
+          </div>
           <div className="auth-actions">
             <Link className="button button-primary" to="/buy">
               Buy House
