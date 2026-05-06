@@ -21,6 +21,22 @@ The app runs at:
 - Frontend: `http://localhost:5173`
 - Backend API: `http://localhost:5000/api`
 
+To run the frontend and backend separately, open two terminals:
+
+```bash
+npm.cmd run dev:backend
+```
+
+```bash
+npm.cmd run dev:frontend
+```
+
+The frontend uses `VITE_API_BASE_URL=http://localhost:5000/api` to call the backend.
+
+Before running the backend, start MySQL in XAMPP. If port `5000` is already in
+use, another backend is already running. Close that terminal or stop the Node
+process using port `5000`.
+
 ## Useful Commands
 
 ```bash
@@ -120,6 +136,7 @@ Database: nestwise_properties
 
 For the demo, you can copy `.env.example` to `.env` and adjust:
 
+- `VITE_API_BASE_URL`
 - `AUTH_SECRET`
 - `ADMIN_EMAIL`
 - `ADMIN_PASSWORD`

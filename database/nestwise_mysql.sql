@@ -143,7 +143,7 @@ INSERT INTO users (
   email_updates, sms_updates, preferred_market, preferred_province,
   last_seen_at, created_at
 ) VALUES
-  (1, 'NestWise Admin', 'admin@nestwise.co.za', '', 'a12efc5d5c73eb12ab4b7f34b1452683:0b820d834648610697011d449237c2f00f26cfc21c5a9a2def16979aea55bb4a5e392d71b7954af724be106b8adf892e791b232d89cb26d7e9da29716528be84', 'admin', TRUE, FALSE, 'both', '', '2026-04-30 15:48:17', '2026-04-29 14:07:01'),
+  (1, 'NestWise Admin', 'admin@nestwise.co.za', '', '80e2ca97072f7964d782944de5b694b4:470bba32236e23540b38b8ef177707ef42cd21e66d33766256222ae57ec5246bae65e17ba5349e064752621dd4a02b5a7c11e3670b136e28ebbccb4388b785a3', 'admin', TRUE, FALSE, 'both', '', '2026-04-30 15:48:17', '2026-04-29 14:07:01'),
   (1777486260413, 'Kamva Hanisi', 'lucashanisi@gmail.com', '0695864843', 'cbb5c3bd9900cc33aab124620f87de9f:e06b608a1cd6dd6a883f1bcf99512e23f29af31d3bf0da6813bf4840062893ed2f1e5c51ea7ff0ae147bde97d35b442460930787236fb3ceab94b75dad580889', 'client', TRUE, FALSE, 'buy', '', '2026-04-30 15:38:51', '2026-04-29 18:11:00'),
   (1777486302174, 'Khanyisile Sibanyoni', 'khanyisilesibanyoni889@gmail.com', '0695864843', 'b81de7c32d7b49cf005c4dc1ccf182b2:3a289ca33936b8f56878ba0fd89e915b07a6b0e0ab9fb7dc4fc12fcd8d8f9d5b139bfff66c75ff57de2b18e21662254fae34442dc3465c9fcc58049040a12a79', 'client', TRUE, FALSE, 'buy', '', '2026-04-29 18:11:42', '2026-04-29 18:11:42'),
   (1777555808523, 'Owner Client', 'owner20260430153008@example.com', '0735555555', 'dc0cea1c41c07f562d562b09733cd338:12759fa0b4dfa7929187310ba236bedcb0c92f9e227240ac2119b8ca3ce98d2678c42115f37b83a94662ba79bcecc226c2a12fad6252fc82e7ce093cd49d2f18', 'client', TRUE, FALSE, 'buy', '', '2026-04-30 13:30:09', '2026-04-30 13:30:08');

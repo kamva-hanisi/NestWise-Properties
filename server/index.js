@@ -4,8 +4,7 @@ import express from "express";
 import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
-import { agents, properties } from "./data/properties.js";
-import { readStore, updateStore } from "./data/store.js";
+import { readAgents, readProperties, readStore, updateStore } from "./data/store.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -14,6 +13,10 @@ const __dirname = path.dirname(__filename);
 
 app.use(cors());
 app.use(express.json());
+
+const asyncRoute = (handler) => (req, res, next) => {
+  Promise.resolve(handler(req, res, next)).catch(next);
+};
 
 const AUTH_SECRET = process.env.AUTH_SECRET || "nestwise-dev-secret-change-me";
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@nestwise.co.za";
@@ -93,25 +96,26 @@ const normalizePreferences = (preferences = {}, defaults = {}) => ({
   preferredProvince: preferences.preferredProvince || defaults.preferredProvince || ""
 });
 
-const getUserFromRequest = (req) => {
+const getUserFromRequest = async (req) => {
   const authHeader = req.headers.authorization || "";
   const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
   const session = verifyToken(token);
 
   if (!session) return null;
 
-  return readStore().users.find((user) => user.id === session.userId);
+  const data = await readStore();
+  return data.users.find((user) => user.id === session.userId);
 };
 
-const requireAuth = (req, res, next) => {
-  const user = getUserFromRequest(req);
+const requireAuth = asyncRoute(async (req, res, next) => {
+  const user = await getUserFromRequest(req);
 
   if (!user) {
     return res.status(401).json({ message: "Please sign in to continue." });
   }
 
   req.user = user;
-  updateStore((data) => {
+  await updateStore((data) => {
     const storedUser = data.users.find((item) => item.id === user.id);
 
     if (storedUser) {
@@ -121,10 +125,10 @@ const requireAuth = (req, res, next) => {
     return data;
   });
   return next();
-};
+});
 
-const ensureAdminUser = () => {
-  updateStore((data) => {
+const ensureAdminUser = async () => {
+  await updateStore((data) => {
     const adminExists = data.users.some((user) => normalize(user.email) === normalize(ADMIN_EMAIL));
 
     if (!adminExists) {
@@ -143,10 +147,10 @@ const ensureAdminUser = () => {
   });
 };
 
-ensureAdminUser();
+await ensureAdminUser();
 
-const requireAdmin = (req, res, next) => {
-  const user = getUserFromRequest(req);
+const requireAdmin = asyncRoute(async (req, res, next) => {
+  const user = await getUserFromRequest(req);
 
   if (!user) {
     return res.status(401).json({ message: "Please sign in to continue." });
@@ -158,16 +162,16 @@ const requireAdmin = (req, res, next) => {
 
   req.user = user;
   return next();
-};
+});
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", app: "NestWise Properties API" });
 });
 
-app.post("/api/auth/signup", (req, res) => {
+app.post("/api/auth/signup", asyncRoute(async (req, res) => {
   const { name, email, phone, password, preferences } = req.body;
   const cleanEmail = normalize(email);
-  const data = readStore();
+  const data = await readStore();
 
   if (!name || !cleanEmail || !password) {
     return res.status(400).json({
@@ -199,7 +203,7 @@ app.post("/api/auth/signup", (req, res) => {
   };
   const token = signToken(user);
 
-  updateStore((store) => {
+  await updateStore((store) => {
     store.users.push(user);
     return store;
   });
@@ -209,11 +213,12 @@ app.post("/api/auth/signup", (req, res) => {
     token,
     user: publicUser(user)
   });
-});
+}));
 
-app.post("/api/auth/signin", (req, res) => {
+app.post("/api/auth/signin", asyncRoute(async (req, res) => {
   const { email, password } = req.body;
-  const user = readStore().users.find((item) => normalize(item.email) === normalize(email));
+  const data = await readStore();
+  const user = data.users.find((item) => normalize(item.email) === normalize(email));
 
   if (!user || !verifyPassword(password, user.passwordHash)) {
     return res.status(401).json({ message: "Invalid email or password." });
@@ -226,10 +231,11 @@ app.post("/api/auth/signin", (req, res) => {
     token,
     user: publicUser(user)
   });
-});
+}));
 
-app.get("/api/admin/dashboard", requireAdmin, (_req, res) => {
-  const data = readStore();
+app.get("/api/admin/dashboard", requireAdmin, asyncRoute(async (_req, res) => {
+  const data = await readStore();
+  const properties = await readProperties();
   const clientUsers = data.users.filter((user) => user.role !== "admin");
   const enrichedBookings = data.bookings.map((booking) => ({
     ...booking,
@@ -263,10 +269,10 @@ app.get("/api/admin/dashboard", requireAdmin, (_req, res) => {
     inquiries: enrichedInquiries,
     ownerPosts: enrichedOwnerPosts
   });
-});
+}));
 
-app.patch("/api/admin/bookings/:id", requireAdmin, (req, res) => {
-  const data = readStore();
+app.patch("/api/admin/bookings/:id", requireAdmin, asyncRoute(async (req, res) => {
+  const data = await readStore();
   const booking = data.bookings.find((item) => item.id === Number(req.params.id));
 
   if (!booking) {
@@ -274,24 +280,24 @@ app.patch("/api/admin/bookings/:id", requireAdmin, (req, res) => {
   }
 
   booking.status = req.body.status || booking.status;
-  updateStore(() => data);
+  await updateStore(() => data);
 
   return res.json({
     message: "Booking status updated.",
     booking
   });
-});
+}));
 
-app.delete("/api/admin/clients/:id", requireAdmin, (req, res) => {
+app.delete("/api/admin/clients/:id", requireAdmin, asyncRoute(async (req, res) => {
   const clientId = Number(req.params.id);
-  const data = readStore();
+  const data = await readStore();
   const client = data.users.find((user) => user.id === clientId);
 
   if (!client || client.role === "admin") {
     return res.status(404).json({ message: "Client not found." });
   }
 
-  updateStore((store) => ({
+  await updateStore((store) => ({
     ...store,
     users: store.users.filter((user) => user.id !== clientId),
     bookings: store.bookings.filter((booking) => booking.userId !== clientId)
@@ -300,15 +306,15 @@ app.delete("/api/admin/clients/:id", requireAdmin, (req, res) => {
   return res.json({
     message: "Client account and requests deleted."
   });
-});
+}));
 
 app.get("/api/auth/me", requireAuth, (req, res) => {
   res.json({ user: publicUser(req.user) });
 });
 
-app.patch("/api/auth/profile", requireAuth, (req, res) => {
+app.patch("/api/auth/profile", requireAuth, asyncRoute(async (req, res) => {
   const { name, phone, preferences } = req.body;
-  const data = readStore();
+  const data = await readStore();
   const user = data.users.find((item) => item.id === req.user.id);
 
   if (!user) {
@@ -322,17 +328,17 @@ app.patch("/api/auth/profile", requireAuth, (req, res) => {
     ...(preferences || {})
   };
 
-  updateStore(() => data);
+  await updateStore(() => data);
 
   return res.json({
     message: "Settings updated.",
     user: publicUser(user)
   });
-});
+}));
 
-app.patch("/api/auth/password", requireAuth, (req, res) => {
+app.patch("/api/auth/password", requireAuth, asyncRoute(async (req, res) => {
   const { currentPassword, newPassword } = req.body;
-  const data = readStore();
+  const data = await readStore();
   const user = data.users.find((item) => item.id === req.user.id);
 
   if (!user) {
@@ -348,26 +354,27 @@ app.patch("/api/auth/password", requireAuth, (req, res) => {
   }
 
   user.passwordHash = hashPassword(newPassword);
-  updateStore(() => data);
+  await updateStore(() => data);
 
   return res.json({ message: "Password changed successfully." });
-});
+}));
 
-app.delete("/api/auth/account", requireAuth, (req, res) => {
+app.delete("/api/auth/account", requireAuth, asyncRoute(async (req, res) => {
   if (req.user.role === "admin") {
     return res.status(403).json({ message: "Admin accounts cannot be deleted here." });
   }
 
-  updateStore((data) => ({
+  await updateStore((data) => ({
     ...data,
     users: data.users.filter((user) => user.id !== req.user.id),
     bookings: data.bookings.filter((booking) => booking.userId !== req.user.id)
   }));
 
   return res.json({ message: "Your account and booking requests have been deleted." });
-});
+}));
 
-app.get("/api/properties", (req, res) => {
+app.get("/api/properties", asyncRoute(async (req, res) => {
+  const properties = await readProperties();
   const location = normalize(req.query.location);
   const type = normalize(req.query.type);
   const maxPrice = Number(req.query.maxPrice || 0);
@@ -393,10 +400,12 @@ app.get("/api/properties", (req, res) => {
       formattedPrice: toMoney(property.price)
     }))
   });
-});
+}));
 
-app.get("/api/bookings", requireAuth, (req, res) => {
-  const userBookings = readStore().bookings
+app.get("/api/bookings", requireAuth, asyncRoute(async (req, res) => {
+  const data = await readStore();
+  const properties = await readProperties();
+  const userBookings = data.bookings
     .filter((booking) => booking.userId === req.user.id)
     .map((booking) => ({
       ...booking,
@@ -404,15 +413,16 @@ app.get("/api/bookings", requireAuth, (req, res) => {
     }));
 
   return res.json({ count: userBookings.length, bookings: userBookings });
-});
+}));
 
-app.get("/api/owner-posts", requireAuth, (req, res) => {
-  const posts = (readStore().ownerPosts || []).filter((post) => post.userId === req.user.id);
+app.get("/api/owner-posts", requireAuth, asyncRoute(async (req, res) => {
+  const data = await readStore();
+  const posts = (data.ownerPosts || []).filter((post) => post.userId === req.user.id);
 
   return res.json({ count: posts.length, posts });
-});
+}));
 
-app.post("/api/owner-posts", requireAuth, (req, res) => {
+app.post("/api/owner-posts", requireAuth, asyncRoute(async (req, res) => {
   const {
     listingGoal,
     propertyType,
@@ -447,7 +457,7 @@ app.post("/api/owner-posts", requireAuth, (req, res) => {
     createdAt: new Date().toISOString()
   };
 
-  updateStore((data) => {
+  await updateStore((data) => {
     data.ownerPosts = data.ownerPosts || [];
     data.ownerPosts.push(post);
     return data;
@@ -457,9 +467,9 @@ app.post("/api/owner-posts", requireAuth, (req, res) => {
     message: "Your property post has been sent to NestWise.",
     post
   });
-});
+}));
 
-app.post("/api/bookings", requireAuth, (req, res) => {
+app.post("/api/bookings", requireAuth, asyncRoute(async (req, res) => {
   const {
     propertyId,
     action,
@@ -469,6 +479,7 @@ app.post("/api/bookings", requireAuth, (req, res) => {
     financing = {},
     emergencyContact = {}
   } = req.body;
+  const properties = await readProperties();
   const property = properties.find((item) => item.id === Number(propertyId));
 
   if (!property) {
@@ -513,7 +524,7 @@ app.post("/api/bookings", requireAuth, (req, res) => {
     createdAt: new Date().toISOString()
   };
 
-  updateStore((data) => {
+  await updateStore((data) => {
     data.bookings.push(booking);
     return data;
   });
@@ -522,9 +533,10 @@ app.post("/api/bookings", requireAuth, (req, res) => {
     message: `Your ${action} request has been sent to NestWise.`,
     booking
   });
-});
+}));
 
-app.get("/api/properties/:id", (req, res) => {
+app.get("/api/properties/:id", asyncRoute(async (req, res) => {
+  const properties = await readProperties();
   const property = properties.find((item) => item.id === Number(req.params.id));
 
   if (!property) {
@@ -532,9 +544,11 @@ app.get("/api/properties/:id", (req, res) => {
   }
 
   return res.json({ ...property, formattedPrice: toMoney(property.price) });
-});
+}));
 
-app.get("/api/about", (_req, res) => {
+app.get("/api/about", asyncRoute(async (_req, res) => {
+  const agents = await readAgents();
+
   res.json({
     stats: [
       { label: "Happy Homeowners", value: "500+" },
@@ -544,9 +558,9 @@ app.get("/api/about", (_req, res) => {
     values: ["Integrity", "Excellence", "Innovation", "Customer-Centric"],
     agents
   });
-});
+}));
 
-app.post("/api/inquiries", (req, res) => {
+app.post("/api/inquiries", asyncRoute(async (req, res) => {
   const { name, email, phone, message, propertyId } = req.body;
 
   if (!name || !email || !message) {
@@ -566,7 +580,7 @@ app.post("/api/inquiries", (req, res) => {
     createdAt: new Date().toISOString()
   };
 
-  updateStore((data) => {
+  await updateStore((data) => {
     data.inquiries.push(inquiry);
     return data;
   });
@@ -575,7 +589,7 @@ app.post("/api/inquiries", (req, res) => {
     message: "Thank you. A NestWise agent will contact you soon.",
     inquiry
   });
-});
+}));
 
 const clientDist = path.resolve(__dirname, "../dist");
 app.use(express.static(clientDist));
@@ -588,6 +602,23 @@ app.get("*", (req, res) => {
   return res.sendFile(path.join(clientDist, "index.html"));
 });
 
-app.listen(PORT, () => {
+app.use((error, _req, res, _next) => {
+  console.error(error);
+  res.status(500).json({ message: "Server error. Please try again." });
+});
+
+const server = app.listen(PORT, () => {
   console.log(`NestWise API running on http://localhost:${PORT}`);
+});
+
+server.on("error", (error) => {
+  if (error.code === "EADDRINUSE") {
+    console.error(
+      `Port ${PORT} is already in use. The backend is probably already running, or another app is using that port.`
+    );
+    console.error(`Close the old backend terminal or run: netstat -ano | findstr :${PORT}`);
+    process.exit(1);
+  }
+
+  throw error;
 });
